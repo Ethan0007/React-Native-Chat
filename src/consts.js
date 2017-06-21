@@ -17,7 +17,7 @@ export const ERR_DISCONNECT  = 'DISCONNECT';
 //Warning 
 export const WRN_ENTER_UNAME_PW = 'Enter User Nickname';
 export const WRN_ENTER_UID = 'Enter User ID';
-
+export const WRN_CONNECTING = 'CONNECTING..';
 
 //Channel(s)
 export const CH_GROUP = 'Group Channel';

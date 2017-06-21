@@ -7,12 +7,13 @@ import {
 } from 'react-native'
 
 import ImageButton from './imageButton';
-
-var backIcon = require('../img/btn-back.png');
-var addIcon = require('../img/btn-add.png');
-var listIcon = require('../img/btn-list.png');
+import backIcon from '../img/btn-back.png';
+import addIcon from '../img/btn-add.png';
+import listIcon from '../img/btn-list.png';
+import styles from './styles/topBar';
 
 export default class TopBar extends Component {
+  
   constructor(props) {
     super(props);
   }
@@ -79,35 +80,5 @@ export default class TopBar extends Component {
       )
     }
   }
-
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#4e4273',
-    paddingTop: 20,
-    paddingBottom: 2,
-  },
-  titleLabel: {
-    color:'#fff',
-    textAlign:'center',
-    fontWeight:'bold',
-    fontSize: 18
-  },
-  leftButton: {
-    justifyContent: 'flex-start',
-    paddingLeft: 5
-  },
-  rightButton: {
-    justifyContent: 'flex-end',
-    paddingRight: 10
-  },
-  imageButton: {
-    width: 30,
-    height: 30
-  }
-});

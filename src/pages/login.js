@@ -9,14 +9,15 @@ import {
   KeyboardAvoidingView
 } from 'react-native';
 import {
-  CredsValidtorRegex, ERR_ALPHANUMERIC_CHAR, CH_NAME_OPENCHANNEL , 
+  CredsValidtorRegex, ERR_ALPHANUMERIC_CHAR, CH_NAME_OPENCHANNEL,
   CH_NAME_GROUPCHANNEL, ERR_USERID_NICKNAME_REQUIRED, MSG_CONNECT, ERR_LOGIN,
-  ERR_DISCONNECT , WRN_ENTER_UNAME_PW , WRN_ENTER_UID, CH_GROUP , CH_OPEN ,
+  ERR_DISCONNECT, WRN_ENTER_UNAME_PW, WRN_ENTER_UID, CH_GROUP, CH_OPEN,
+  WRN_CONNECTING
 } from '../consts';
 import styles from './styles/loginStyles';
 import Button from '../components/button';
 import SendBird from 'sendbird'
-import { ButtonStyle , LoginView } from './styles/helper/buttonStyles';
+import { ButtonStyle, LoginView } from './styles/helper/buttonStyles';
 var sb = null;
 
 export default class Login extends Component {
@@ -27,7 +28,10 @@ export default class Login extends Component {
       username: '',
       connectLabel: MSG_CONNECT,
       buttonDisabled: true,
-      errorMessage: ''
+      errorMessage: '',
+      showProgress: false,
+      groupChannelBtnDisabled: true,
+      openChannelBtnDisabled: true
     };
     this._onPressConnect = this._onPressConnect.bind(this);
     this._onPressOpenChannel = this._onPressOpenChannel.bind(this);
@@ -35,22 +39,27 @@ export default class Login extends Component {
   }
 
   _onPressConnect() {
-    Keyboard.dismiss();
 
-    if (!this.state.buttonDisabled) {
+    Keyboard.dismiss();
+    this.setState({ showProgress: true, connectLabel: WRN_CONNECTING});
+
+
+    if (!this.state.groupChannelBtnDisabled && !this.state.openChannelBtnDisabled)
       this._onPressDisconnect();
-      return;
-    }
 
     if (this.state.username.trim().length == 0 || this.state.userId.trim().length == 0) {
-      this.setState({
-        userId: '',
-        username: '',
-        errorMessage: ERR_USERID_NICKNAME_REQUIRED
-      });
-      return;
-    }
+      setTimeout(() => {
+        this.setState({
+          userId: '',
+          username: '',
+          groupChannelBtnDisabled: true,
+          openChannelBtnDisabled: true,
+          showProgress: false,
+          errorMessage: ERR_USERID_NICKNAME_REQUIRED
+        });
+      }, 1000);
 
+    }
 
     if (CredsValidtorRegex.test(this.state.username) || CredsValidtorRegex.test(this.state.userId)) {
       this.setState({
@@ -58,44 +67,57 @@ export default class Login extends Component {
         username: '',
         errorMessage: ERR_ALPHANUMERIC_CHAR,
       });
-      return;
     }
 
     sb = SendBird.getInstance();
     var self = this;
     sb.connect(self.state.userId, function (user, error) {
+
       if (error) {
         self.setState({
           userId: '',
           username: '',
+          groupChannelBtnDisabled: true,
+          openChannelBtnDisabled: true,
+          showProgress: false,
           errorMessage: ERR_LOGIN
         });
-        console.log(error);
-        return;
+      } else {
+        self.setState({
+          groupChannelBtnDisabled: false,
+          openChannelBtnDisabled: false,
+          buttonDisabled: false,
+          showProgress: false
+        })
       }
 
       if (Platform.OS === 'ios') {
         if (sb.getPendingAPNSToken()) {
-          sb.registerAPNSPushTokenForCurrentUser(sb.getPendingAPNSToken(), function (result, error) {
-            console.log("APNS TOKEN REGISTER AFTER LOGIN");
-            console.log(result);
-          });
+          sb.registerAPNSPushTokenForCurrentUser(sb.getPendingAPNSToken(), function (result, error) { });
         }
       } else {
         if (sb.getPendingGCMToken()) {
-          sb.registerGCMPushTokenForCurrentUser(sb.getPendingGCMToken(), function (result, error) {
-            console.log("GCM TOKEN REGISTER AFTER LOGIN");
-            console.log(result);
-          });
+          sb.registerGCMPushTokenForCurrentUser(sb.getPendingGCMToken(), function (result, error) { });
         }
       }
 
       sb.updateCurrentUserInfo(self.state.username, '', function (response, error) {
-        self.setState({
-          buttonDisabled: false,
-          connectLabel: ERR_DISCONNECT,
-          errorMessage: ''
-        });
+        if (error) {
+          self.setState({
+            groupChannelBtnDisabled: true,
+            openChannelBtnDisabled: true,
+            showProgress: false
+          });
+        } else {
+          self.setState({
+            groupChannelBtnDisabled: false,
+            openChannelBtnDisabled: false,
+            buttonDisabled: false,
+            showProgress: false,
+            connectLabel: ERR_DISCONNECT,
+            errorMessage: ''
+          });
+        }
       });
     });
   }
@@ -108,13 +130,32 @@ export default class Login extends Component {
     this.props.navigator.push({ name: CH_NAME_GROUPCHANNEL });
   }
 
+
+  shouldComponentUpdate(nextProps, nextState) {
+
+    if (nextState.userId.trim() === '' || nextState.username.trim() === '') {
+      setTimeout(() => {
+        this.setState({ buttonDisabled: true });
+      }, 100)
+    }
+    if (nextState.userId.trim() !== '' && nextState.username.trim() !== '') {
+      setTimeout(() => {
+        this.setState({ buttonDisabled: false });
+      }, 100)
+    }
+
+
+    return true;
+  }
+
   _onPressDisconnect() {
     sb.disconnect();
     this.setState({
       userId: '',
       username: '',
       errorMessage: '',
-      buttonDisabled: true,
+      groupChannelBtnDisabled: true,
+      openChannelBtnDisabled: true,
       connectLabel: MSG_CONNECT
     });
   }
@@ -136,7 +177,8 @@ export default class Login extends Component {
           <TextInput
             style={[styles.input, { marginTop: 10 }]}
             value={this.state.username}
-            onChangeText={(text) => this.setState({ username: text })}
+            onChangeText={(text) =>
+              this.setState({ username: text })}
             onSubmitEditing={Keyboard.dismiss}
             underlineColorAndroid="transparent"
             placeholder={WRN_ENTER_UNAME_PW}
@@ -145,8 +187,10 @@ export default class Login extends Component {
           />
 
           <Button
+            showProgress={this.state.showProgress}
             text={this.state.connectLabel}
             style={ButtonStyle()}
+            disabled={this.state.buttonDisabled}
             onPress={this._onPressConnect}
           />
 
@@ -154,13 +198,13 @@ export default class Login extends Component {
           <Button
             text={CH_GROUP}
             style={ButtonStyle()}
-            disabled={this.state.buttonDisabled}
+            disabled={this.state.groupChannelBtnDisabled}
             onPress={this._onPressGroupChannel}
           />
           <Button
             text={CH_OPEN}
             style={ButtonStyle()}
-            disabled={this.state.buttonDisabled}
+            disabled={this.state.openChannelBtnDisabled}
             onPress={this._onPressOpenChannel}
           />
 

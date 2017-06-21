@@ -66,15 +66,15 @@ export default class GroupChannel extends Component {
   _channelUpdate(channel) {
     if(!channel) return;
 
-    var _SELF = this;
+    var self = this;
     var _exist = false;
-    var _list = _SELF.state.channelList.filter(function(ch) {
+    var _list = self.state.channelList.filter(function(ch) {
       return channel.url != ch.url
     });
 
     _list.unshift(channel);
 
-    _SELF.setState({
+    self.setState({
       channelList: _list,
       dataSource: ds.cloneWithRows(_list)
     });
@@ -101,8 +101,8 @@ export default class GroupChannel extends Component {
   }
 
   _onChannelPress(channel) {
-    var _SELF = this;
-    if (_SELF.state.editMode) {
+    var self = this;
+    if (self.state.editMode) {
       Alert.alert(
         'Group Channel Edit',
         null,
@@ -113,7 +113,7 @@ export default class GroupChannel extends Component {
                 console.log(error);
                 return;
               }
-              _SELF._onHideChannel(channel);
+              self._onHideChannel(channel);
             });
           }},
           {text: 'hide', onPress: () => {
@@ -122,14 +122,14 @@ export default class GroupChannel extends Component {
                 console.log(error);
                 return;
               }
-              _SELF._onHideChannel(channel);
+              self._onHideChannel(channel);
             });
           }},
           {text: 'Cancel'}
         ]
       )
     } else {
-      _SELF.props.navigator.push({name: 'chat', channel: channel, _onHideChannel: this._onHideChannel, refresh: this._refreshChannelList});
+      self.props.navigator.push({name: 'chat', channel: channel, _onHideChannel: this._onHideChannel, refresh: this._refreshChannelList});
     }
   }
 
@@ -144,27 +144,27 @@ export default class GroupChannel extends Component {
   }
 
   _refreshChannelList() {
-    var _SELF = this;
+    var self = this;
     var listQuery = sb.GroupChannel.createMyGroupChannelListQuery();
     listQuery.next(function(channelList, error){
       if (error) {
         console.log(error);
         return;
       }
-      _SELF.setState({ listQuery: listQuery, channelList: channelList, dataSource: ds.cloneWithRows(channelList)});
+      self.setState({ listQuery: listQuery, channelList: channelList, dataSource: ds.cloneWithRows(channelList)});
 
     });
   }
 
   _getChannelList() {
-    var _SELF = this;
-    _SELF.state.listQuery.next(function(channelList, error){
+    var self = this;
+    self.state.listQuery.next(function(channelList, error){
       if (error) {
         console.log(error);
         return;
       }
-      var newList = _SELF.state.channelList.concat(channelList);
-      _SELF.setState({ channelList: newList, dataSource: ds.cloneWithRows(newList)});
+      var newList = self.state.channelList.concat(channelList);
+      self.setState({ channelList: newList, dataSource: ds.cloneWithRows(newList)});
 
     });
   }
@@ -174,14 +174,14 @@ export default class GroupChannel extends Component {
   }
 
   _onGroupChannel() {
-    var _SELF = this;
-    if (_SELF.state.editMode) {
+    var self = this;
+    if (self.state.editMode) {
       Alert.alert(
         'Group Channel Event',
         null,
         [
           {text: 'Done', onPress: () => {
-            _SELF.setState({editMode: false});
+            self.setState({editMode: false});
           }}
         ]
       )
@@ -191,10 +191,10 @@ export default class GroupChannel extends Component {
         null,
         [
           {text: 'Edit', onPress: () => {
-            _SELF.setState({editMode: true});
+            self.setState({editMode: true});
           }},
           {text: 'Create', onPress: () => {
-            _SELF.props.navigator.push({name: 'inviteUser', refresh: _SELF._refreshChannelList});
+            self.props.navigator.push({name: 'inviteUser', refresh: self._refreshChannelList});
           }},
           {text: 'Cancel'}
         ]

@@ -76,6 +76,7 @@ export default class CreateChannel extends Component {
             onChangeText={this._onChangeText}
             placeholder={'Open Channel Name'}
             maxLength={12}
+            underlineColorAndroid="transparent"
             multiline={false}
             autoFocus={true}
           />
