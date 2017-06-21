@@ -5,19 +5,23 @@ export const PULLDOWN_DISTANCE = 40;
 //RegExpression
 export const CredsValidtorRegex =  /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi;
 
-//Message
+//Info
 export const MSG_CONNECT = 'CONNECT';
 
 //Error
 export const ERR_USERID_NICKNAME_REQUIRED = 'User ID and Nickname must be required.';
 export const ERR_ALPHANUMERIC_CHAR = 'Please only alphanumeric characters.';
 export const ERR_LOGIN = 'Login Error';
-export const ERR_DISCONNECT  = 'DISCONNECT';
+
 
 //Warning 
 export const WRN_ENTER_UNAME_PW = 'Enter User Nickname';
 export const WRN_ENTER_UID = 'Enter User ID';
-export const WRN_CONNECTING = 'CONNECTING..';
+export const WRN_CONNECTING = 'CONNECTING';
+export const WRN_CONNECTED = 'CONNECTED';
+export const WRN_DISCONNECT  = 'DISCONNECT';
+export const WRN_DISCONNECTED  = 'DISCONNECTED';
+export const WRN_DISCONNECTING  = 'DISCONNECTING';
 
 //Channel(s)
 export const CH_GROUP = 'Group Channel';

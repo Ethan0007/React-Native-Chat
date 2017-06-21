@@ -20,7 +20,7 @@ export const ButtonStyle = (props , style) => {
 
 export const TextStyle = (style) => {
     return {
-        width: 230,
+        width: 175,
         alignSelf: 'center',
         textAlign: 'center',
         fontSize: 20,

@@ -11,8 +11,8 @@ import {
 import {
   CredsValidtorRegex, ERR_ALPHANUMERIC_CHAR, CH_NAME_OPENCHANNEL,
   CH_NAME_GROUPCHANNEL, ERR_USERID_NICKNAME_REQUIRED, MSG_CONNECT, ERR_LOGIN,
-  ERR_DISCONNECT, WRN_ENTER_UNAME_PW, WRN_ENTER_UID, CH_GROUP, CH_OPEN,
-  WRN_CONNECTING
+  WRN_DISCONNECT, WRN_ENTER_UNAME_PW, WRN_ENTER_UID, CH_GROUP, CH_OPEN,
+  WRN_CONNECTING, WRN_CONNECTED, WRN_DISCONNECTING , WRN_DISCONNECTED
 } from '../consts';
 import styles from './styles/loginStyles';
 import Button from '../components/button';
@@ -29,6 +29,7 @@ export default class Login extends Component {
       connectLabel: MSG_CONNECT,
       buttonDisabled: true,
       errorMessage: '',
+      disconnectState: false,
       showProgress: false,
       groupChannelBtnDisabled: true,
       openChannelBtnDisabled: true
@@ -40,16 +41,20 @@ export default class Login extends Component {
 
   _onPressConnect() {
 
+    var self = this;
+    sb = SendBird.getInstance();
     Keyboard.dismiss();
-    this.setState({ showProgress: true, connectLabel: WRN_CONNECTING});
+    this.setState({ showProgress: true });
 
-
-    if (!this.state.groupChannelBtnDisabled && !this.state.openChannelBtnDisabled)
+    if (self.state.connectLabel === WRN_CONNECTED)
       this._onPressDisconnect();
 
-    if (this.state.username.trim().length == 0 || this.state.userId.trim().length == 0) {
+    if (!self.state.groupChannelBtnDisabled && !self.state.openChannelBtnDisabled)
+      this._onPressDisconnect();
+
+    if (self.state.username.trim().length == 0 || self.state.userId.trim().length == 0) {
       setTimeout(() => {
-        this.setState({
+        self.setState({
           userId: '',
           username: '',
           groupChannelBtnDisabled: true,
@@ -58,20 +63,17 @@ export default class Login extends Component {
           errorMessage: ERR_USERID_NICKNAME_REQUIRED
         });
       }, 1000);
-
     }
 
-    if (CredsValidtorRegex.test(this.state.username) || CredsValidtorRegex.test(this.state.userId)) {
-      this.setState({
+    if (CredsValidtorRegex.test(self.state.username) || CredsValidtorRegex.test(self.state.userId)) {
+      self.setState({
         userId: '',
         username: '',
         errorMessage: ERR_ALPHANUMERIC_CHAR,
       });
     }
 
-    sb = SendBird.getInstance();
-    var self = this;
-    sb.connect(self.state.userId, function (user, error) {
+    sb.connect(self.state.userId, (user, error) => {
 
       if (error) {
         self.setState({
@@ -83,12 +85,23 @@ export default class Login extends Component {
           errorMessage: ERR_LOGIN
         });
       } else {
-        self.setState({
-          groupChannelBtnDisabled: false,
-          openChannelBtnDisabled: false,
-          buttonDisabled: false,
-          showProgress: false
-        })
+        if (this.state.connectLabel === MSG_CONNECT) {
+          self.setState({
+            groupChannelBtnDisabled: false,
+            openChannelBtnDisabled: false,
+            connectBtnDisabled: false,
+            showProgress: false,
+            connectLabel: WRN_DISCONNECT
+          })
+        } else {
+           self.setState({
+            groupChannelBtnDisabled: false,
+            openChannelBtnDisabled: false,
+            connectBtnDisabled: false,
+            showProgress: false,
+            connectLabel: WRN_DISCONNECTED
+          })
+        }
       }
 
       if (Platform.OS === 'ios') {
@@ -106,18 +119,10 @@ export default class Login extends Component {
           self.setState({
             groupChannelBtnDisabled: true,
             openChannelBtnDisabled: true,
-            showProgress: false
-          });
-        } else {
-          self.setState({
-            groupChannelBtnDisabled: false,
-            openChannelBtnDisabled: false,
-            buttonDisabled: false,
             showProgress: false,
-            connectLabel: ERR_DISCONNECT,
-            errorMessage: ''
+            connectBtnDisabled: true,
           });
-        }
+        } 
       });
     });
   }
@@ -129,7 +134,6 @@ export default class Login extends Component {
   _onPressGroupChannel() {
     this.props.navigator.push({ name: CH_NAME_GROUPCHANNEL });
   }
-
 
   shouldComponentUpdate(nextProps, nextState) {
 
@@ -144,20 +148,32 @@ export default class Login extends Component {
       }, 100)
     }
 
-
     return true;
   }
 
   _onPressDisconnect() {
-    sb.disconnect();
     this.setState({
-      userId: '',
-      username: '',
-      errorMessage: '',
-      groupChannelBtnDisabled: true,
-      openChannelBtnDisabled: true,
-      connectLabel: MSG_CONNECT
-    });
+      disconnectState: true
+    })
+    sb.disconnect();
+    setTimeout(() => {
+      this.setState({
+        userId: '',
+        username: '',
+        errorMessage: '',
+        connectBtnDisabled: true,
+        groupChannelBtnDisabled: true,
+        openChannelBtnDisabled: true,
+        showProgress: false,
+        connectLabel: MSG_CONNECT
+      });
+    }, 1000);
+
+    setTimeout(() => {
+      this.setState({
+        disconnectState: false
+      });
+    }, 2000);
   }
 
   render() {
@@ -190,6 +206,7 @@ export default class Login extends Component {
             showProgress={this.state.showProgress}
             text={this.state.connectLabel}
             style={ButtonStyle()}
+            disconnectState={this.state.disconnectState}
             disabled={this.state.buttonDisabled}
             onPress={this._onPressConnect}
           />
