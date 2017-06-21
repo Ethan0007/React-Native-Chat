@@ -22,5 +22,6 @@ export const WRN_ENTER_UID = 'Enter User ID';
 //Channel(s)
 export const CH_GROUP = 'Group Channel';
 export const CH_OPEN = 'Open Channel';
-
+export const CH_NAME_OPENCHANNEL = 'openChannel';
+export const CH_NAME_GROUPCHANNEL = 'groupChannel';
 

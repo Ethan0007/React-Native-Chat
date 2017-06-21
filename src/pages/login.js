@@ -9,8 +9,8 @@ import {
   KeyboardAvoidingView
 } from 'react-native';
 import {
-  CredsValidtorRegex, ERR_ALPHANUMERIC_CHAR,
-  ERR_USERID_NICKNAME_REQUIRED, MSG_CONNECT, ERR_LOGIN,
+  CredsValidtorRegex, ERR_ALPHANUMERIC_CHAR, CH_NAME_OPENCHANNEL , 
+  CH_NAME_GROUPCHANNEL, ERR_USERID_NICKNAME_REQUIRED, MSG_CONNECT, ERR_LOGIN,
   ERR_DISCONNECT , WRN_ENTER_UNAME_PW , WRN_ENTER_UID, CH_GROUP , CH_OPEN ,
 } from '../consts';
 import styles from './styles/loginStyles';
@@ -101,11 +101,11 @@ export default class Login extends Component {
   }
 
   _onPressOpenChannel() {
-    this.props.navigator.push({ name: 'openChannel' });
+    this.props.navigator.push({ name: CH_NAME_OPENCHANNEL });
   }
 
   _onPressGroupChannel() {
-    this.props.navigator.push({ name: 'groupChannel' });
+    this.props.navigator.push({ name: CH_NAME_GROUPCHANNEL });
   }
 
   _onPressDisconnect() {
@@ -118,8 +118,6 @@ export default class Login extends Component {
       connectLabel: MSG_CONNECT
     });
   }
-
- 
 
   render() {
     return (
