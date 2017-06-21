@@ -67,28 +67,28 @@ export default class Chat extends Component {
   }
 
   componentDidMount() {
-    var _SELF = this;
-    if (!_SELF.state.hasRendered) {
-      _SELF.state.hasRendered = true;
-      _SELF._getChannelMessage(false);
-      if (_SELF.state.channel.channelType == 'group') {
-        _SELF.state.channel.markAsRead();
+    var self = this;
+    if (!self.state.hasRendered) {
+      self.state.hasRendered = true;
+      self._getChannelMessage(false);
+      if (self.state.channel.channelType == 'group') {
+        self.state.channel.markAsRead();
       }
 
       // channel handler
       var ChannelHandler = new sb.ChannelHandler();
       ChannelHandler.onMessageReceived = function (channel, message) {
-        if (channel.url == _SELF.state.channel.url) {
+        if (channel.url == self.state.channel.url) {
           var _messages = [];
           _messages.push(message);
-          var _newMessageList = _messages.concat(_SELF.state.messages);
-          _SELF.setState({
+          var _newMessageList = _messages.concat(self.state.messages);
+          self.setState({
             messages: _newMessageList,
-            dataSource: _SELF.state.dataSource.cloneWithRows(_newMessageList)
+            dataSource: self.state.dataSource.cloneWithRows(_newMessageList)
           });
-          _SELF.state.lastMessage = message;
-          if (_SELF.state.channel.channelType == 'group') {
-            _SELF.state.channel.markAsRead();
+          self.state.lastMessage = message;
+          if (self.state.channel.channelType == 'group') {
+            self.state.channel.markAsRead();
           }
         }
       };
@@ -97,8 +97,8 @@ export default class Chat extends Component {
 
       var ConnectionHandler = new sb.ConnectionHandler();
       ConnectionHandler.onReconnectSucceeded = function () {
-        _SELF._getChannelMessage(true);
-        _SELF.state.channel.refresh();
+        self._getChannelMessage(true);
+        self.state.channel.refresh();
       }
       sb.addConnectionHandler('ChatView', ConnectionHandler);
     }

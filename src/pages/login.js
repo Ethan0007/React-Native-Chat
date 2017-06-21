@@ -7,15 +7,16 @@ import {
   Platform,
   Keyboard,
   KeyboardAvoidingView
-} from 'react-native'
-
-const LoginView = Platform.select({
-  ios: () => KeyboardAvoidingView,
-  android: () => View,
-})();
-
-import Button from '../components/button'
+} from 'react-native';
+import {
+  CredsValidtorRegex, ERR_ALPHANUMERIC_CHAR,
+  ERR_USERID_NICKNAME_REQUIRED, MSG_CONNECT, ERR_LOGIN,
+  ERR_DISCONNECT , WRN_ENTER_UNAME_PW , WRN_ENTER_UID, CH_GROUP , CH_OPEN ,
+} from '../consts';
+import styles from './styles/loginStyles';
+import Button from '../components/button';
 import SendBird from 'sendbird'
+import { ButtonStyle , LoginView } from './styles/helper/buttonStyles';
 var sb = null;
 
 export default class Login extends Component {
@@ -24,7 +25,7 @@ export default class Login extends Component {
     this.state = {
       userId: '',
       username: '',
-      connectLabel: 'CONNECT',
+      connectLabel: MSG_CONNECT,
       buttonDisabled: true,
       errorMessage: ''
     };
@@ -45,29 +46,29 @@ export default class Login extends Component {
       this.setState({
         userId: '',
         username: '',
-        errorMessage: 'User ID and Nickname must be required.'
+        errorMessage: ERR_USERID_NICKNAME_REQUIRED
       });
       return;
     }
 
-    var regExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]/gi
-    if (regExp.test(this.state.username) || regExp.test(this.state.userId)) {
+
+    if (CredsValidtorRegex.test(this.state.username) || CredsValidtorRegex.test(this.state.userId)) {
       this.setState({
         userId: '',
         username: '',
-        errorMessage: 'Please only alphanumeric characters.'
+        errorMessage: ERR_ALPHANUMERIC_CHAR,
       });
       return;
     }
 
     sb = SendBird.getInstance();
-    var _SELF = this;
-    sb.connect(_SELF.state.userId, function (user, error) {
+    var self = this;
+    sb.connect(self.state.userId, function (user, error) {
       if (error) {
-        _SELF.setState({
+        self.setState({
           userId: '',
           username: '',
-          errorMessage: 'Login Error'
+          errorMessage: ERR_LOGIN
         });
         console.log(error);
         return;
@@ -89,10 +90,10 @@ export default class Login extends Component {
         }
       }
 
-      sb.updateCurrentUserInfo(_SELF.state.username, '', function (response, error) {
-        _SELF.setState({
+      sb.updateCurrentUserInfo(self.state.username, '', function (response, error) {
+        self.setState({
           buttonDisabled: false,
-          connectLabel: 'DISCONNECT',
+          connectLabel: ERR_DISCONNECT,
           errorMessage: ''
         });
       });
@@ -114,19 +115,11 @@ export default class Login extends Component {
       username: '',
       errorMessage: '',
       buttonDisabled: true,
-      connectLabel: 'CONNECT'
+      connectLabel: MSG_CONNECT
     });
   }
 
-  _buttonStyle() {
-    return {
-      backgroundColor: '#6E5BAA',
-      underlayColor: '#51437f',
-      borderColor: '#6E5BAA',
-      disabledColor: '#ababab',
-      textColor: '#ffffff'
-    }
-  }
+ 
 
   render() {
     return (
@@ -137,7 +130,7 @@ export default class Login extends Component {
             value={this.state.userId}
             onChangeText={(text) => this.setState({ userId: text })}
             onSubmitEditing={Keyboard.dismiss}
-            placeholder={'Enter User ID'}
+            placeholder={WRN_ENTER_UID}
             underlineColorAndroid="transparent"
             maxLength={12}
             multiline={false}
@@ -148,27 +141,27 @@ export default class Login extends Component {
             onChangeText={(text) => this.setState({ username: text })}
             onSubmitEditing={Keyboard.dismiss}
             underlineColorAndroid="transparent"
-            placeholder={'Enter User Nickname'}
+            placeholder={WRN_ENTER_UNAME_PW}
             maxLength={12}
             multiline={false}
           />
 
           <Button
             text={this.state.connectLabel}
-            style={this._buttonStyle()}
+            style={ButtonStyle()}
             onPress={this._onPressConnect}
           />
 
           <Text style={styles.errorLabel}>{this.state.errorMessage}</Text>
           <Button
-            text={'Group Channel'}
-            style={this._buttonStyle()}
+            text={CH_GROUP}
+            style={ButtonStyle()}
             disabled={this.state.buttonDisabled}
             onPress={this._onPressGroupChannel}
           />
           <Button
-            text={'Open Channel'}
-            style={this._buttonStyle()}
+            text={CH_OPEN}
+            style={ButtonStyle()}
             disabled={this.state.buttonDisabled}
             onPress={this._onPressOpenChannel}
           />
@@ -179,32 +172,3 @@ export default class Login extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  loginContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1
-  },
-  input: {
-    width: 250,
-    color: '#555555',
-    padding: 10,
-    height: 50,
-    borderColor: '#6E5BAA',
-    borderWidth: 1,
-    borderRadius: 4,
-    alignSelf: 'center',
-    backgroundColor: '#ffffff'
-  },
-  errorLabel: {
-    color: '#ff0200',
-    fontSize: 13,
-    marginTop: 10,
-    width: 250
-  }
-});
