@@ -12,6 +12,7 @@ import {
 import {APP_ID, PULLDOWN_DISTANCE} from '../consts';
 import TopBar from '../components/topBar';
 import SendBird from 'sendbird';
+import styles from './styles/blockList';
 var sb = null;
 
 export default class BlockList extends Component {
@@ -35,7 +36,7 @@ export default class BlockList extends Component {
   }
 
   _onUserPress(obj) {
-    var _SELF = this;
+    var self = this;
     Alert.alert(
       'Unblock User',
       null,
@@ -43,14 +44,13 @@ export default class BlockList extends Component {
         {text: 'Unblock', onPress: () => {
           sb.unblockUser(obj, function(response, error) {
             if(error) {
-              console.log(error);
               return;
             }
 
-            _SELF.setState({list: _SELF.state.list.filter((user) => {
+            self.setState({list: self.state.list.filter((user) => {
               return user.userId !== obj.userId;
             })}, ()=> {
-              _SELF.setState({dataSource: _SELF.state.dataSource.cloneWithRows(_SELF.state.list)});
+              self.setState({dataSource: self.state.dataSource.cloneWithRows(self.state.list)});
             });
           });
         }},
@@ -60,18 +60,17 @@ export default class BlockList extends Component {
   }
 
   _getBlockList() {
-    var _SELF = this;
+    var self = this;
     this.state.listQuery.next(function(response, error) {
       if (error) {
         if (response.length == 0) {
           return;
         }
-        console.log('Get Participant List Fail.', error);
         return;
       }
 
-      _SELF.setState({list: _SELF.state.list.concat(response)}, () => {
-        _SELF.setState({dataSource: _SELF.state.dataSource.cloneWithRows(_SELF.state.list)});
+      self.setState({list: self.state.list.concat(response)}, () => {
+        self.setState({dataSource: self.state.dataSource.cloneWithRows(self.state.list)});
       });
     });
   }
@@ -114,44 +113,3 @@ export default class BlockList extends Component {
 
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    backgroundColor: '#ffffff'
-  },
-  listContainer: {
-    flex: 11,
-    justifyContent: 'center',
-    alignItems: 'stretch'
-  },
-  listItem: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f7f8fc',
-    borderBottomWidth: 0.5,
-    borderColor: '#D0DBE4',
-    padding: 5
-  },
-  listIcon: {
-    justifyContent: 'flex-start',
-    paddingLeft: 10,
-    paddingRight: 15
-  },
-  profileIcon: {
-    width: 30,
-    height: 30
-  },
-  listInfo: {
-    flex: 1,
-    justifyContent: 'flex-start'
-  },
-  memberLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#60768b',
-  }
-});

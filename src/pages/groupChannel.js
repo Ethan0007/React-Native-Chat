@@ -185,7 +185,7 @@ export default class GroupChannel extends Component {
           }}
         ]
       )
-    } else{
+    } else {
       Alert.alert(
         'Group Channel Event',
         null,

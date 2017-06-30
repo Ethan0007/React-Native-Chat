@@ -13,7 +13,7 @@ export const ButtonStyle = () => {
     };
 };
 
-export const LoginView = Platform.select({
+export const KeyboardView = Platform.select({
   ios: () => KeyboardAvoidingView,
   android: () => View,
 })();

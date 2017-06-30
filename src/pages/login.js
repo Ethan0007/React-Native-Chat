@@ -17,7 +17,7 @@ import {
 import styles from './styles/loginStyles';
 import Button from '../components/button';
 import SendBird from 'sendbird'
-import { ButtonStyle, LoginView } from './styles/helper/buttonStyles';
+import { ButtonStyle, KeyboardView } from './styles/helper/buttonStyles';
 var sb = null;
 
 export default class Login extends Component {
@@ -178,7 +178,7 @@ export default class Login extends Component {
 
   render() {
     return (
-      <LoginView behavior='padding' style={styles.container} >
+      <KeyboardView behavior='padding' style={styles.container} >
         <View style={styles.loginContainer}>
           <TextInput
             style={styles.input}
@@ -226,7 +226,7 @@ export default class Login extends Component {
           />
 
         </View>
-      </LoginView>
+      </KeyboardView>
     );
   }
 }
