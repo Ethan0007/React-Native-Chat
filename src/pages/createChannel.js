@@ -7,10 +7,11 @@ import {
 
 import {APP_ID, PULLDOWN_DISTANCE} from '../consts';
 import SendBird from 'sendbird';
-var sb = null;
-
 import TopBar from '../components/topBar';
 import Button from '../components/button';
+import styles from './styles/createChannel';
+var sb = null;
+
 
 export default class CreateChannel extends Component {
   constructor(props) {
@@ -93,27 +94,3 @@ export default class CreateChannel extends Component {
 
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'stretch',
-    backgroundColor: '#ffffff'
-  },
-  createContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 11
-  },
-  textInput: {
-    width: 250,
-    color: '#555555',
-    padding: 10,
-    height: 50,
-    borderColor: '#6E5BAA',
-    borderWidth: 1,
-    borderRadius: 4,
-    alignSelf: 'center',
-    backgroundColor: '#ffffff'
-  },
-});
